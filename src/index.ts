@@ -1,5 +1,8 @@
 import fastifyRef from "fastify";
+import { setupDB } from "./service/database";
+import { setupRedis } from "./service/redis";
 import { ContentType, HeaderItem } from "./types/fastify-utils";
+import MeRouter from "./controller/me";
 
 /* Load .env variables */
 require("dotenv").config();
@@ -7,10 +10,7 @@ require("dotenv").config();
 const fastify = fastifyRef({ logger: process.env.FASTIFY_PRODUCTION == null ? true : !!process.env.FASTIFY_PRODUCTION, trustProxy: true });
 
 /* Routers */
-// fastify.register(AuthRouter);
-// fastify.register(GithubRouter, { prefix: "/github" });
-// fastify.register(GoogleRouter, { prefix: "/google" });
-// fastify.register(DiscordRouter, { prefix: "/discord" });
+fastify.register(MeRouter, { prefix: "/me" });
 
 /* Healthcheck */
 fastify.get("/", async (_request, reply) => {
@@ -23,8 +23,8 @@ fastify.get("/", async (_request, reply) => {
 /* Start Server */
 const start = async () => {
   try {
-    // await setupDB();
-    // await setupRedis();
+    await setupDB();
+    await setupRedis();
     await fastify.listen(3000, '0.0.0.0');
   } catch (err) {
     fastify.log.error(err);
