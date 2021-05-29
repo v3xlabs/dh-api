@@ -79,6 +79,15 @@ resource "kubernetes_deployment" "api" {
                         }
                     }
                     env {
+                        name = "REDIS_HOST"
+                        value_from {
+                            config_map_key_ref {
+                                name = "config"
+                                key = "REDIS_HOST"
+                            }
+                        }
+                    }
+                    env {
                         name = "FASTIFY_PRODUCTION"
                         value = "true"
                     }
