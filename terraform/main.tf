@@ -15,7 +15,7 @@ provider "kubernetes" {
 variable "container" {}
 variable "deployurl" {}
 
-resource "kubernetes_deployment" "web" {
+resource "kubernetes_deployment" "api" {
     metadata {
         name = "api"
         namespace = "dogehouse"
