@@ -60,6 +60,28 @@ resource "kubernetes_deployment" "api" {
                             }
                         }
                     }
+                    env {
+                        name = "POSTGRES_HOST"
+                        value_from {
+                            config_map_key_ref {
+                                name = "config"
+                                key = "POSTGRES_HOST"
+                            }
+                        }
+                    }
+                    env {
+                        name = "POSTGRES_PASSWORD"
+                        value_from {
+                            config_map_key_ref {
+                                name = "config"
+                                key = "POSTGRES_PASSWORD"
+                            }
+                        }
+                    }
+                    env {
+                        name = "FASTIFY_PRODUCTION"
+                        value = "true"
+                    }
 
                     liveness_probe {
                         http_get {
