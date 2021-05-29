@@ -4,6 +4,7 @@ import { isAuthenticated } from "./rules";
 const permissions = shield({
   Query: {
     exampleQuery: not(isAuthenticated),
+    getMe: isAuthenticated,
   },
   Mutation: {
     createOneHabibi: isAuthenticated,
