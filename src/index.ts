@@ -3,7 +3,6 @@ import mercurius from "mercurius";
 import { setupDB } from "./service/database";
 import { setupRedis } from "./service/redis";
 import { ContentType, HeaderItem } from "./types/fastify-utils";
-import MeRouter from "./controller/me";
 import Query from "./resolvers/Query";
 import Mutation from "./resolvers/Mutation";
 import schemaFile from "./schema";
@@ -50,7 +49,6 @@ fastify.register(mercurius, {
 fastify.register(require('fastify-cors'), {
   origin: '*'
 });
-fastify.register(MeRouter, { prefix: "/me" });
 
 /* Healthcheck */
 fastify.get("/", async (_request, reply) => {
