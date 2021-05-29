@@ -47,6 +47,9 @@ fastify.register(mercurius, {
 });
 
 /* Routers */
+fastify.register(require('fastify-cors'), {
+  origin: '*'
+});
 fastify.register(MeRouter, { prefix: "/me" });
 
 /* Healthcheck */
