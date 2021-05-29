@@ -1,9 +1,9 @@
-import exampleQuery from "./queries/example";
-import getMe from "./queries/getMe"
+import me from "./queries/me"
+import rooms from "./queries/rooms";
 
 const Query = {
-  exampleQuery,
-  getMe,
+  me,
+  rooms
 };
 
 export default Query;

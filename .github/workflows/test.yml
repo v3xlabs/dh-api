@@ -1,0 +1,19 @@
+name: Build & Deploy
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    name: 🔨 Build Package
+    steps:
+      - uses: actions/checkout@v2
+      - name: Log into Lucemans registry
+        run: echo "${{ secrets.LVK_REGISTRY }}" | docker login lvk.sh -u lucemans --password-stdin
+      - name: Pull old image if possible
+        run: docker pull ${{ env.PACKAGE_NAME }}:latest || true
+      - name: Build Deploy Package
+        run: docker build --tag ${{ env.PACKAGE_NAME }} .

@@ -3,16 +3,22 @@ type Habibi {
   name: String
 }
 
-type PublicUser {
+type User {
   id: Int!
   username: String!
   avatar: String!
   bio: String!
 }
 
+type Room {
+  id: Int!
+  name: String!
+  description: String!
+}
+
 type Query {
-  exampleQuery(name: String): String
-  getMe: PublicUser!
+  me: User!
+  rooms: [Room!]!
 }
 
 type Mutation {
