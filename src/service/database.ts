@@ -2,6 +2,7 @@ import { PartialUser, User } from "../types/user";
 import { v4 as uuidv4 } from "uuid";
 import { createConnection } from "typeorm";
 import { SocialID } from "../types/social";
+import { Room } from "../types/room";
 
 export async function setupDB() {
   const connection = await createConnection({
@@ -12,7 +13,7 @@ export async function setupDB() {
     username: "postgres",
     password: process.env.POSTGRES_PASSWORD,
     synchronize: true,
-    entities: [User, SocialID],
+    entities: [User, SocialID, Room],
   });
 }
 
