@@ -6,7 +6,12 @@ import { ContentType, HeaderItem } from "./types/fastify-utils";
 import MeRouter from "./controller/me";
 import Query from "./resolvers/Query";
 import Mutation from "./resolvers/Mutation";
-import schema from "./schema";
+import schemaFile from "./schema";
+
+import { makeExecutableSchema } from "@graphql-tools/schema";
+import pullUserFromRequest from "./graphql-utils/pullUserFromRequest";
+import { applyMiddleware } from "graphql-middleware";
+import permissions from "./graphql-utils/permissions";
 
 /* Load .env variables */
 require("dotenv").config();
@@ -23,15 +28,22 @@ const resolvers = {
   Mutation,
 };
 
+const schema = makeExecutableSchema({ typeDefs: schemaFile, resolvers });
+
+const schemaWithMiddleware = applyMiddleware(schema, permissions);
+
 fastify.register(mercurius, {
-  schema: schema,
-  resolvers,
+  schema: schemaWithMiddleware,
   graphiql: "playground",
   playgroundHeaders(window: any) {
     return {
-      Authorization: `Bearer none`,
+      authorization: `Bearer `,
     };
   },
+  context: (req) => ({
+    ...req,
+    user: pullUserFromRequest(req),
+  }),
 });
 
 /* Routers */
