@@ -1,4 +1,4 @@
-name: Build & Deploy
+name: Build & Lint
 
 on:
   pull_request:
@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-20.04
-    name: 🔨 Build Package
+    name: 🧪 Lint Package
     steps:
       - uses: actions/checkout@v2
       - name: Log into Lucemans registry
