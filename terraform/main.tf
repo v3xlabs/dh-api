@@ -52,6 +52,11 @@ resource "kubernetes_deployment" "api" {
                     }
                     
                     env {
+                        name = "PORT"
+                        value = "3000"
+                    }
+
+                    env {
                         name = "AUTH_TOKEN"
                         value_from {
                             config_map_key_ref {
