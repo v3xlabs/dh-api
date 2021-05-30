@@ -9,7 +9,7 @@ type User {
   avatar: String!
   bio: String!
   follower_count: Int!
-  following_couint: Int!
+  following_count: Int!
 }
 
 type Room {
