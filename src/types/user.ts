@@ -1,30 +1,37 @@
-import { BaseEntity, Column, Entity, Index, ManyToOne, OneToMany, PrimaryColumn, PrimaryGeneratedColumn, Unique } from "typeorm";
+import { Field, ID, Int, ObjectType } from "type-graphql";
+import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Room } from "./room";
 import { SocialID } from "./social";
 
+@ObjectType()
 export abstract class PartialUser extends BaseEntity {
-    
+
     /**
      * Username
      * This is changable by the end user and should not be used as an identifier.
      */
-    @Column({type: 'varchar', length: 8})
+    @Field()
+    @Column({ type: 'varchar', length: 8 })
     username: string = 'Anonymous';
 
     /**
      * User Avatar URL
      * This is changable by the end user and should not be used as an identifier.
      */
-    @Column({type: 'varchar', length: 200})
+    @Field()
+    @Column({ type: 'varchar', length: 200 })
     avatar: string;
 
     /**
      * Biography
      * This is changable by the end user and should not be used as an identifier.
      */
-    @Column({type: 'varchar', length: 200})
+    @Field()
+    @Column({ type: 'varchar', length: 200 })
     bio: string = 'Hello Dogehouse';
 }
 
+@ObjectType()
 @Entity()
 export class User extends PartialUser {
 
@@ -32,6 +39,7 @@ export class User extends PartialUser {
      * Identifier
      * This is the unique user identifier
      */
+    @Field(type => Int)
     @PrimaryGeneratedColumn('increment')
     id: number;
 
@@ -39,6 +47,19 @@ export class User extends PartialUser {
      * Socials
      * This is a list of platforms that the user is connected with
      */
-     @OneToMany(() => SocialID, socialID => socialID.user)
-     socials: SocialID[]
+    @OneToMany(() => SocialID, socialID => socialID.user)
+    socials: SocialID[];
+
+    /**
+     * Current Room
+     * Random
+     */
+    @Field(type => Room, {nullable: true})
+    current_room: Room;
+
+    @Field(type => Int)
+    follower_count: number;
+
+    @Field(type => Int)
+    following_count: number;
 };

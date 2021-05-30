@@ -1,6 +1,10 @@
 {
     "compilerOptions": {
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
         "esModuleInterop": true,
-        "experimentalDecorators": true
+        "target": "ESNext",
+        "lib": ["es2018", "esnext.asynciterable"],
+        "module": "CommonJS"
     }
 }
