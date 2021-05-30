@@ -11,6 +11,7 @@ import { makeExecutableSchema } from "@graphql-tools/schema";
 import pullUserFromRequest from "./graphql-utils/pullUserFromRequest";
 import { applyMiddleware } from "graphql-middleware";
 import permissions from "./graphql-utils/permissions";
+import shields from "./controller/shields";
 
 /* Load .env variables */
 require("dotenv").config();
@@ -49,6 +50,7 @@ fastify.register(mercurius, {
 fastify.register(require('fastify-cors'), {
   origin: '*'
 });
+fastify.register(shields, {prefix: "/shields"});
 
 /* Healthcheck */
 fastify.get("/", async (_request, reply) => {
