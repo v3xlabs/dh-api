@@ -1,17 +1,16 @@
 import fastifyRef from "fastify";
-import mercurius from "mercurius";
 import { setupDB } from "./service/database";
 import { setupRedis } from "./service/redis";
 import { ContentType, HeaderItem } from "./types/fastify-utils";
-import Query from "./resolvers/Query";
-import Mutation from "./resolvers/Mutation";
-import schemaFile from "./schema";
 
-import { makeExecutableSchema } from "@graphql-tools/schema";
-import pullUserFromRequest from "./graphql-utils/pullUserFromRequest";
-import { applyMiddleware } from "graphql-middleware";
-import permissions from "./graphql-utils/permissions";
+import {pullUserFromRequest, UserContext} from "./graphql-utils/pullUserFromRequest";
 import shields from "./controller/shields";
+
+import {UserResolver} from './resolvers/UserResolver';
+import { buildSchemaSync } from "type-graphql";
+import mercurius from "mercurius";
+import { RoomResolver } from "./resolvers/RoomResolver";
+import { MemberResolver } from "./resolvers/MemberResolver";
 
 /* Load .env variables */
 require("dotenv").config();
@@ -23,27 +22,26 @@ const fastify = fastifyRef({
   trustProxy: true,
 });
 
-const resolvers = {
-  Query,
-  Mutation,
-};
-
-const schema = makeExecutableSchema({ typeDefs: schemaFile, resolvers });
-
-const schemaWithMiddleware = applyMiddleware(schema, permissions);
-
 fastify.register(mercurius, {
-  schema: schemaWithMiddleware,
+  schema: buildSchemaSync({
+    resolvers: [
+      UserResolver,
+      RoomResolver,
+      MemberResolver
+    ]
+  }),
+  context: (req, reply): UserContext => {
+    return {
+      ...req,
+      user_id: pullUserFromRequest(req, reply)
+    }
+  },
   graphiql: "playground",
   playgroundHeaders(window: any) {
     return {
       authorization: `Bearer `,
     };
   },
-  context: (req) => ({
-    ...req,
-    user: pullUserFromRequest(req),
-  }),
 });
 
 /* Routers */
@@ -65,6 +63,7 @@ const start = async () => {
   try {
     await setupDB();
     await setupRedis();
+
     await fastify.listen(process.env.PORT || 3000, "0.0.0.0");
   } catch (err) {
     fastify.log.error(err);
