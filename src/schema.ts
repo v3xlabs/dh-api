@@ -8,6 +8,8 @@ type User {
   username: String!
   avatar: String!
   bio: String!
+  follower_count: Int!
+  following_couint: Int!
 }
 
 type Room {
