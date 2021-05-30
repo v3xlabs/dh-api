@@ -25,5 +25,6 @@ type Query {
 
 type Mutation {
   createOneHabibi(name: String): Habibi
+  createRoom(name: String): Room
 }
 `;
