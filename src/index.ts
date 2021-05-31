@@ -3,14 +3,15 @@ import { setupDB } from "./service/database";
 import { setupRedis } from "./service/redis";
 import { ContentType, HeaderItem } from "./types/fastify-utils";
 
-import {pullUserFromRequest, UserContext} from "./graphql-utils/pullUserFromRequest";
+import { pullUserFromRequest, UserContext } from "./graphql-utils/pullUserFromRequest";
 import shields from "./controller/shields";
 
-import {UserResolver} from './resolvers/UserResolver';
+import { UserResolver } from './resolvers/UserResolver';
 import { buildSchemaSync } from "type-graphql";
 import mercurius from "mercurius";
 import { RoomResolver } from "./resolvers/RoomResolver";
 import { MemberResolver } from "./resolvers/MemberResolver";
+import { RedisPubSub } from 'graphql-redis-subscriptions';
 
 /* Load .env variables */
 require("dotenv").config();
@@ -22,33 +23,11 @@ const fastify = fastifyRef({
   trustProxy: true,
 });
 
-fastify.register(mercurius, {
-  schema: buildSchemaSync({
-    resolvers: [
-      UserResolver,
-      RoomResolver,
-      MemberResolver
-    ]
-  }),
-  context: (req, reply): UserContext => {
-    return {
-      ...req,
-      user_id: pullUserFromRequest(req, reply)
-    }
-  },
-  graphiql: "playground",
-  playgroundHeaders(window: any) {
-    return {
-      authorization: `Bearer `,
-    };
-  },
-});
-
 /* Routers */
 fastify.register(require('fastify-cors'), {
   origin: '*'
 });
-fastify.register(shields, {prefix: "/shields"});
+fastify.register(shields, { prefix: "/shields" });
 
 /* Healthcheck */
 fastify.get("/", async (_request, reply) => {
@@ -63,6 +42,42 @@ const start = async () => {
   try {
     await setupDB();
     await setupRedis();
+
+    fastify.register(mercurius, {
+      schema: buildSchemaSync({
+        resolvers: [
+          UserResolver,
+          RoomResolver,
+          MemberResolver
+        ],
+        pubSub: new RedisPubSub({
+          connection: {
+            host: process.env.REDIS_HOST
+          }
+        }),
+      }),
+      context: (req, reply): UserContext => {
+        const user_id = pullUserFromRequest(req, reply);
+
+        if (user_id == null) {
+          // reply.status(401).send("");
+          return null;
+        }
+
+        return {
+          ...req,
+          user_id
+        }
+      },
+      graphiql: "playground",
+      subscription: true,
+      playgroundHeaders(window: any) {
+        return {
+          authorization: `Bearer `,
+        };
+      },
+    });
+
 
     await fastify.listen(process.env.PORT || 3000, "0.0.0.0");
   } catch (err) {
