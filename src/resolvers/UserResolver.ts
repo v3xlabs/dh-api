@@ -1,17 +1,20 @@
-import { Ctx, FieldResolver, Query, Resolver, Root } from "type-graphql";
+import { Args, ArgsType, Ctx, Field, FieldResolver, Int, Mutation, Query, Resolver, Root } from "type-graphql";
 import { User } from "../types/user";
 import { UserContext } from '../graphql-utils/pullUserFromRequest';
 import { Room } from "../types/room";
+
+@ArgsType()
+class FollowUserArgs {
+    @Field(type => Int)
+    user_id: number;
+}
 
 @Resolver(of => User)
 export class UserResolver {
 
     @Query(returns => User)
     async me(@Ctx() ctx: UserContext) {
-
-        console.log('request from ' + ctx.user_id);
-
-        return await User.findOne({where: {id: ctx.user_id}});
+        return User.findOne({where: {id: ctx.user_id}});
     }
 
     @FieldResolver()
@@ -33,5 +36,21 @@ export class UserResolver {
     @FieldResolver()
     following_count(): number {
         return 0;
+    }
+
+    @Mutation(type => Boolean)
+    async follow(@Ctx() ctx: UserContext, @Args() {user_id}: FollowUserArgs) {
+        const user = await User.findOne({where: {id: ctx.user_id}, relations: ['following']});
+        const otherUser = await User.findOne({where: {id: user_id}});
+
+        if (!otherUser) {
+            return false;
+        }
+
+        user.following.push(otherUser);
+
+        await user.save();
+
+        return true;
     }
 }

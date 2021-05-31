@@ -1,14 +1,21 @@
-import { Args, Ctx, FieldResolver, Int, Mutation, Publisher, PubSub, Query, Resolver, Root, Subscription } from "type-graphql";
+import { Args, ArgsType, Ctx, Field, FieldResolver, Int, Mutation, Publisher, PubSub, Query, Resolver, Root, Subscription } from "type-graphql";
 import { UserContext } from '../graphql-utils/pullUserFromRequest';
 import { Room, RoomChangePayload, RoomID } from "../types/room";
 import { User } from "../types/user";
+
+@ArgsType()
+class CreateRoomArgs {
+    @Field(type => String)
+    name: string;
+    @Field(type => String)
+    description: string;
+}
 
 @Resolver(of => Room)
 export class RoomResolver {
 
     @Query(returns => [Room])
     async rooms(@Ctx() ctx: UserContext) {
-
         return await Room.find();
     }
 
@@ -20,9 +27,9 @@ export class RoomResolver {
     }
 
     @Mutation(() => Room)
-    async createRoom(@Ctx() ctx: UserContext, @PubSub("ROOM_CHANGE") publish: Publisher<RoomChangePayload>) {
+    async createRoom(@Ctx() ctx: UserContext, @Args() {name, description}: CreateRoomArgs, @PubSub("ROOM_CHANGE") publish: Publisher<RoomChangePayload>) {
 
-        const room = Room.create({id: 1, name: 'My First Room'});
+        const room = Room.create({id: 1, name: name, description: description});
 
         const payload: RoomChangePayload = {
             event: 'CREATE',
