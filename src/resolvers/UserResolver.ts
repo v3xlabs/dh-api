@@ -40,13 +40,13 @@ export class UserResolver {
     }
 
     @FieldResolver()
-    follower_count(): number {
-        return 0;
+    async follower_count(@Root() user: User): Promise<number> {
+        return (await user.followers).length;
     }
 
     @FieldResolver()
-    following_count(): number {
-        return 0;
+    async following_count(@Root() user: User): Promise<number> {
+        return (await user.following).length;
     }
 
     @Mutation(type => Boolean)
