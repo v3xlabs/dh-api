@@ -13,7 +13,7 @@ export abstract class PartialUser extends BaseEntity {
      * This is changable by the end user and should not be used as an identifier.
      */
     @Field()
-    @Column({ type: 'varchar', length: 8 })
+    @Column({ type: 'varchar', length: 12 })
     username: string = 'Anonymous';
 
     /**
