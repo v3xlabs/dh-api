@@ -7,8 +7,8 @@ import { User } from "../types/user";
 class CreateRoomArgs {
     @Field(type => String)
     name: string;
-    @Field(type => String)
-    description: string;
+    @Field(type => String, {nullable: true})
+    description?: string;
 }
 
 @Resolver(of => Room)

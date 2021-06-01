@@ -9,12 +9,23 @@ class FollowUserArgs {
     user_id: number;
 }
 
+@ArgsType()
+class GetUserArgs {
+    @Field(type => Int)
+    user_id: number;
+}
+
 @Resolver(of => User)
 export class UserResolver {
 
     @Query(returns => User)
     async me(@Ctx() ctx: UserContext) {
         return User.findOne({where: {id: ctx.user_id}});
+    }
+
+    @Query(returns => User)
+    async user(@Args() {user_id}: GetUserArgs) {
+        return User.findOne({where: {id: user_id}});
     }
 
     @FieldResolver()
@@ -47,7 +58,7 @@ export class UserResolver {
             return false;
         }
 
-        user.following.push(otherUser);
+        (await user.following).push(otherUser);
 
         await user.save();
 
