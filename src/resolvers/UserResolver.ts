@@ -20,10 +20,10 @@ class GetUserArgs {
 @Resolver(of => User)
 export class UserResolver {
 
-    // @Query(returns => User)
-    // async me(@Ctx() ctx: UserContext) {
-    //     return User.findOne({where: {id: ctx.user_id}});
-    // }
+    @Query(returns => User)
+    async me(@Ctx() ctx: UserContext) {
+        return User.findOne({where: {id: ctx.user_id}});
+    }
 
     @Query(returns => User)
     async user(@Args() {user_id}: GetUserArgs) {
