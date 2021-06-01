@@ -1,5 +1,5 @@
-import { Field, ID, Int, ObjectType } from "type-graphql";
-import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Field, Int, ObjectType } from "type-graphql";
+import { BaseEntity, Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Room } from "./room";
 import { SocialID } from "./social";
 
@@ -47,7 +47,7 @@ export class User extends PartialUser {
      * Socials
      * This is a list of platforms that the user is connected with
      */
-    @OneToMany(() => SocialID, socialID => socialID.user)
+    @OneToMany(type => SocialID, socialID => socialID.user)
     socials: SocialID[];
 
     /**
@@ -62,4 +62,13 @@ export class User extends PartialUser {
 
     @Field(type => Int)
     following_count: number;
+
+    @Field(type => [User])
+    @JoinTable()
+    @ManyToMany(type => User, user => user.followers, {lazy: true})
+    following: User[];
+
+    @Field(type => [User])
+    @ManyToMany(type => User, user => user.following, {lazy: true})
+    followers: User[];
 };

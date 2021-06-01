@@ -25,8 +25,8 @@ export class Room extends BaseEntity {
     /**
      * Room Description
      */
-    @Field()
-    @Column({ type: 'varchar', length: 100 })
+    @Field(() => String, {nullable: true})
+    @Column({ type: 'varchar', length: 100, nullable: true })
     description: string;
 
     /**
