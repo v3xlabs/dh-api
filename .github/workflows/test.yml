@@ -8,10 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-20.04
-    name: 🧪 Lint Package
+    name: 📦 Build Docker Image
     steps:
       - uses: actions/checkout@v2
-      - name: Log into Lucemans registry
-        run: echo "${{ secrets.LVK_REGISTRY }}" | docker login lvk.sh -u lucemans --password-stdin
       - name: Build Deploy Package
         run: docker build .
