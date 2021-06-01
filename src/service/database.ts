@@ -13,9 +13,9 @@ export async function setupDB() {
     database: "dogehouse",
     username: "postgres",
     password: process.env.POSTGRES_PASSWORD,
-    synchronize: true,
+    synchronize: false,
     entities: [User, SocialID, Room, Follow],
-    logging: true
+    logging: false
   });
 }
 
