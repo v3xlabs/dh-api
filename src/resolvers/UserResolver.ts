@@ -22,7 +22,8 @@ export class UserResolver {
 
     @Query(returns => User)
     async me(@Ctx() ctx: UserContext) {
-        return User.findOne({where: {id: ctx.user_id}});
+        const userRepository = getRepository(User);
+        return userRepository.findOne({where: {id: ctx.user_id}, relations: ["following", "followers"]});
     }
 
     @Query(returns => User)
