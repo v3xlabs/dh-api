@@ -66,9 +66,9 @@ export class User extends PartialUser {
     @Field(type => [User])
     @JoinTable()
     @ManyToMany(type => User, user => user.followers, {lazy: true})
-    following: User[];
+    following: Promise<User[]>;
 
     @Field(type => [User])
     @ManyToMany(type => User, user => user.following, {lazy: true})
-    followers: User[];
+    followers: Promise<User[]>;
 };
