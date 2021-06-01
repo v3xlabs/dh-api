@@ -58,7 +58,36 @@ export class UserResolver {
             return false;
         }
 
-        (await user.following).push(otherUser);
+        const following = await user.following;
+
+        if (following.some(following => following.id == otherUser.id)) {
+            return true;
+        }
+
+        following.push(otherUser);
+        user.following = following;
+
+        await user.save();
+
+        return true;
+    }
+
+    @Mutation(type => Boolean)
+    async unfollow(@Ctx() ctx: UserContext, @Args() {user_id}: FollowUserArgs) {
+        const user = await User.findOne({where: {id: ctx.user_id}, relations: ['following']});
+        const otherUser = await User.findOne({where: {id: user_id}});
+
+        if (!otherUser) {
+            return false;
+        }
+
+        const following = await user.following;
+
+        if (!following.some(following => following.id == otherUser.id)) {
+            return true;
+        }
+        
+        user.following = following.filter(following => following.id !== otherUser.id);
 
         await user.save();
 
