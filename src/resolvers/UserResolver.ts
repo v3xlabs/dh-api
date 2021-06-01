@@ -43,15 +43,21 @@ export class UserResolver {
         });
     }
 
-    // @FieldResolver()
-    // async follower_count(@Root() user: User): Promise<number> {
-    //     return (await user.followers).length;
-    // }
+    @FieldResolver()
+    async follower_count(@Root() user: User): Promise<number> {
+        if (user['followers'] != null)
+            return user['followers'].length;
+        const m = getManager();
+        return await m.count(Follow, {where: {following: user}});
+    }
 
-    // @FieldResolver()
-    // async following_count(@Root() user: User): Promise<number> {
-    //     return (await user.following).length;
-    // }
+    @FieldResolver()
+    async following_count(@Root() user: User): Promise<number> {
+        if (user['following'] != null)
+            return user['following'].length;
+        const m = getManager();
+        return await m.count(Follow, {where: {follower: user}});
+    }
 
     @FieldResolver()
     async following(@Root() user: User): Promise<Follow[]> {
