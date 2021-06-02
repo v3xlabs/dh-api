@@ -12,6 +12,7 @@ import mercurius from "mercurius";
 import { RoomResolver } from "./resolvers/RoomResolver";
 import { MemberResolver } from "./resolvers/MemberResolver";
 import { RedisPubSub } from 'graphql-redis-subscriptions';
+import { useAuth } from "./graphql-utils/auth";
 
 /* Load .env variables */
 require("dotenv").config();
@@ -59,10 +60,8 @@ const start = async () => {
       context: (req, reply): UserContext => {
         const user_id = pullUserFromRequest(req, reply);
 
-        if (user_id == null) {
-          // reply.status(401).send("");
-          return null;
-        }
+        if (user_id == null)
+          throw new Error("Unauthorized");
 
         return {
           ...req,
