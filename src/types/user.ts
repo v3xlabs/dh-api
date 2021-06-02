@@ -64,6 +64,9 @@ export class User extends PartialUser {
 
     @Field(type => Int)
     following_count: number;
+    
+    @Field(type => Boolean)
+    am_following: boolean;
 
     @Field(type => [Follow])
     @OneToMany(type => Follow, user => user.follower)
