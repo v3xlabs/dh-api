@@ -73,6 +73,15 @@ export class UserResolver {
         return f;
     }
 
+    @FieldResolver()
+    async am_following(@Root() user: User, @Ctx() ctx: UserContext) {
+        console.log(ctx.user_id);
+        console.log(user);
+        const a =  await getRepository(Follow).find({where: {follower: await User.find({where: {id: ctx.user_id}}), following: user}});
+        console.log(a);
+        return false;
+    }
+
     @Mutation(type => Boolean)
     async follow(@Ctx() ctx: UserContext, @Args() {user_id}: FollowUserArgs) {
         const m = getManager();
