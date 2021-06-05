@@ -1,5 +1,5 @@
 import { ArgsType, Field, ID, Int, ObjectType } from "type-graphql";
-import { BaseEntity, Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, BeforeInsert, Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
 import { Member } from "./member";
 import { User } from "./user";
 
@@ -35,6 +35,23 @@ export class Room extends BaseEntity {
      */
     @Field(type => [Member])
     members: Member[];
+
+    @Column({
+        type: "timestamp",
+        default: () => "NOW()"
+    })
+    created_on: Date;
+
+    @Column({
+        type: "timestamp",
+        default: () => "NOW()"
+    })
+    modified_on: Date;
+
+    @BeforeInsert()
+    updateDateCreation() {
+        this.modified_on = new Date();
+    }
 }
 
 @ObjectType()
