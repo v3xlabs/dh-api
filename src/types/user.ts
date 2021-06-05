@@ -1,6 +1,6 @@
 import { fips } from "crypto";
 import { Field, Int, ObjectType } from "type-graphql";
-import { BaseEntity, Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, BeforeInsert, Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Follow } from "./follow";
 import { Room } from "./room";
 import { SocialID } from "./social";
@@ -75,4 +75,21 @@ export class User extends PartialUser {
     @Field(type => [Follow])
     @OneToMany(type => Follow, user => user.following)
     followers: Follow[];
+    
+    @Column({
+        type: "timestamp",
+        default: () => "NOW()"
+    })
+    created_on: Date;
+
+    @Column({
+        type: "timestamp",
+        default: () => "NOW()"
+    })
+    modified_on: Date;
+
+    @BeforeInsert()
+    updateDateCreation() {
+        this.modified_on = new Date();
+    }
 };
