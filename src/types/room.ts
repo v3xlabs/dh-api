@@ -38,7 +38,7 @@ export class RoomChangePayload {
     @Field()
     event: 'CREATE' | 'UPDATE' | 'DELETE' | 'USER_JOIN' | 'USER_PART';
 
-    @Field(type => Room)
+    @Field(type => Room, { nullable: true })
     room?: Room;
 
     @Field(type => String, { nullable: true })
