@@ -1,8 +1,9 @@
 import { Client } from 'cassandra-driver';
 import { CQLMember, CQLMemberType } from '../types/CQLRoom';
-import { Room } from '../types/room';
+import { Room, RoomChangePayload } from '../types/room';
 import { red } from 'chalk';
 import { CQLQueries } from '../types/CQLQueries';
+import { getPubSub } from './pubsub';
 
 let connection: Client;
 
@@ -158,5 +159,9 @@ export const repairRoom = async (room_id: string) => {
     if (r.rowLength == 0) {
         console.log('Found empty room ' + room_id + ' DELETING...'); // TODO: Rename to better message
         await connection.execute(CQLQueries.deleteRoom, [room_id]);
+        getPubSub().publish('ROOM_CHANGE', {
+            event: 'DELETE',
+            room: room_id
+        } as RoomChangePayload);
     }
 }
