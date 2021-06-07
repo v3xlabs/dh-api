@@ -14,7 +14,7 @@ export class MemberResolver {
 
     @FieldResolver()
     async room(@Root() member: Member): Promise<Room> {
-        return getRoom('*', member.room_id);
+        return getRoom(member.room_id);
     }
 
 }
