@@ -6,7 +6,6 @@ export type UserContext = {
 };
 
 export const pullUserFromRequest = (a: {[key: string]: string | string[]}) => {
-
   try {
     const token = a.authorization;
 
