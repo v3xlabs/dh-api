@@ -81,20 +81,13 @@ const start = async () => {
         onDisconnect: async (ctx) => {
           if (ctx['user_id']) {
             const room_id = await getUserRoom(ctx['user_id']);
-            const room = await getRoom(room_id);
             if (room_id) {
               leaveRoom(room_id, ctx['user_id']);
+              const room = await getRoom(room_id);
               getPubSub().publish("ROOM_CHANGE", {
                 room_id: room_id,
                 room: room,
-                event: 'USER_PART',
-                user_id: ctx['user_id']
-              } as RoomChangePayload);
-              getPubSub().publish("ROOM_USERS", {
-                room_id: room_id,
-                room: room,
-                event: 'USER_PART',
-                user_id: ctx['user_id']
+                event: 'UPDATE',
               } as RoomChangePayload);
             }
           }

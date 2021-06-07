@@ -81,26 +81,18 @@ export class RoomResolver {
         Assert`${userCurrentRoom} User Already In Room`;
 
         // Check if the room specified exists
-        const room = await getRoom(room_id);
+        let room = await getRoom(room_id);
         AssertNot`${room} Room ${room_id} does not exist`;
 
         // Join specified room
         await joinRoom(room_id, ctx.user_id);
-
-        const user = await getManager().findOne(User, {where: {id: ctx.user_id}});
+        room = await getRoom(room_id);
 
         // Publish event to room
         await publishRooms({
-            event: 'USER_JOIN',
+            event: 'UPDATE',
             room_id: room_id,
-            user_id: ctx.user_id.toString(),
-            user: user
-        });
-        await publishUsers({
-            event: 'USER_JOIN',
-            room_id: room_id,
-            user_id: ctx.user_id.toString(),
-            user: user
+            room: room
         });
 
         return true;
