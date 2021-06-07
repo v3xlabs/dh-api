@@ -17,6 +17,7 @@ import chalk from "chalk";
 import { verify } from "jsonwebtoken";
 import { getPubSub, setupPubSub } from "./service/pubsub";
 import { RoomChangePayload } from "./types/room";
+import { useAuth } from "./graphql-utils/auth";
 
 /* Load .env variables */
 require("dotenv").config();
@@ -58,17 +59,21 @@ const start = async () => {
           RoomResolver,
           MemberResolver
         ],
+        globalMiddlewares: [useAuth],
         pubSub,
       }),
-      context: (req, reply): UserContext => {
-        const user_id = pullUserFromRequest(req.headers);
+      context: (req, _) => {
+        try {
+          const user_id = pullUserFromRequest(req.headers);
 
-        if (user_id == null)
-          throw new Error("Unauthorized");
-
-        return {
-          ...req,
-          user_id
+          return {
+            user_id
+          }
+        } catch (e) {
+          console.log('Unauthorized Request');
+          return {
+            user_id: null
+          };
         }
       },
       graphiql: "playground",
@@ -92,12 +97,16 @@ const start = async () => {
           }
         },
         onConnect: (data) => {
-          const user_id = pullUserFromRequest(data.payload);
-          if (user_id == null)
+          try {
+            const user_id = pullUserFromRequest(data.payload);
+            if (user_id == null)
+              return {};
+            return {
+              user_id
+            };
+          } catch (e) {
             return {};
-          return {
-            user_id
-          };
+          }
         },
       },
       playgroundHeaders(window: any) {

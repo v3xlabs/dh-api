@@ -1,5 +1,10 @@
 import { MiddlewareFn } from "type-graphql";
+import { UserContext } from "./pullUserFromRequest";
 
-export const useAuth: MiddlewareFn = ({args, context, info, root}, next) => {
+export const useAuth: MiddlewareFn<UserContext> = ({args, context, info, root}, next) => {
+    if (!context.user_id) {
+        console.log('Unauthorized Request to User Endpoint');
+        return null;
+    }
     return next();
 };
