@@ -82,7 +82,7 @@ const start = async () => {
           if (ctx['user_id']) {
             const room_id = await getUserRoom(ctx['user_id']);
             if (room_id) {
-              leaveRoom(room_id, ctx['user_id']);
+              await leaveRoom(room_id, ctx['user_id']);
               const room = await getRoom(room_id);
               getPubSub().publish("ROOM_CHANGE", {
                 room_id: room_id,
