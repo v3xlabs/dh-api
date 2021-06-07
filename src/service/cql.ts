@@ -158,10 +158,12 @@ export const repairRoom = async (room_id: string) => {
     const r = await connection.execute(CQLQueries.hasUserInRoom, [room_id]);
     if (r.rowLength == 0) {
         console.log('Found empty room ' + room_id + ' DELETING...'); // TODO: Rename to better message
+        const room = await getRoom(room_id);
         await connection.execute(CQLQueries.deleteRoom, [room_id]);
         getPubSub().publish('ROOM_CHANGE', {
             event: 'DELETE',
-            room: room_id
+            room: room,
+            room_id: room_id
         } as RoomChangePayload);
     }
 }

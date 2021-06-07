@@ -57,7 +57,8 @@ export class RoomResolver {
         // Create payload to send to subscribers
         const subscriptionPayload: RoomChangePayload = {
             event: 'CREATE',
-            room: room.id
+            room: room,
+            room_id: room.id
         };
 
         // Notify everyone on the main page
@@ -87,13 +88,13 @@ export class RoomResolver {
         // Publish event to room
         await publishRooms({
             event: 'USER_JOIN',
-            room: room_id,
-            user: ctx.user_id.toString()
+            room_id: room_id,
+            user_id: ctx.user_id.toString()
         });
         await publishUsers({
             event: 'USER_JOIN',
-            room: room_id,
-            user: ctx.user_id.toString()
+            room_id: room_id,
+            user_id: ctx.user_id.toString()
         });
 
         return true;

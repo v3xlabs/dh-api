@@ -38,11 +38,17 @@ export class RoomChangePayload {
     @Field()
     event: 'CREATE' | 'UPDATE' | 'DELETE' | 'USER_JOIN' | 'USER_PART';
 
-    @Field(type => String)
-    room: string;
+    @Field(type => Room)
+    room?: Room;
 
     @Field(type => String, { nullable: true })
-    user?: string;
+    room_id?: string;
+
+    @Field(type => User, { nullable: true })
+    user?: User;
+
+    @Field(type => String, { nullable: true })
+    user_id?: string;
 
 };
 
