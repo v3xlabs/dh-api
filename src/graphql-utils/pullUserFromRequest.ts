@@ -1,14 +1,22 @@
-import { FastifyRequest, FastifyReply } from "fastify";
+import { FastifyRequest } from "fastify";
 import { decode, verify } from "jsonwebtoken";
 
 export type UserContext = {
   user_id: number;
 };
 
-export const pullUserFromRequest = (a: FastifyRequest, next: FastifyReply) => {
+export const pullUserFromRequest = (a: {[key: string]: string | string[]}) => {
 
   try {
-    const token = a.headers.authorization;
+    const token = a.authorization;
+
+    if (!token) {
+      return null;
+    }
+
+    if (typeof token !== 'string') {
+      return null;
+    }
 
     if (!verify(token.replace("Bearer ", ""), process.env.AUTH_TOKEN)) {
       return null;

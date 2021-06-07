@@ -8,11 +8,13 @@ import shields from "./controller/shields";
 
 import { UserResolver } from './resolvers/UserResolver';
 import { buildSchemaSync } from "type-graphql";
-import mercurius from "mercurius";
+import mercurius, { MercuriusContext, MercuriusOptions } from "mercurius";
 import { RoomResolver } from "./resolvers/RoomResolver";
 import { MemberResolver } from "./resolvers/MemberResolver";
 import { RedisPubSub } from 'graphql-redis-subscriptions';
-import { useAuth } from "./graphql-utils/auth";
+import { getRoomMember, getUserRoom, leaveRoom, repair, setupCassandra } from "./service/cql";
+import chalk from "chalk";
+import { verify } from "jsonwebtoken";
 
 /* Load .env variables */
 require("dotenv").config();
@@ -43,6 +45,13 @@ const start = async () => {
   try {
     await setupDB();
     await setupRedis();
+    await setupCassandra();
+
+    const pubSub = new RedisPubSub({
+      connection: {
+        host: process.env.REDIS_HOST
+      }
+    });
 
     fastify.register(mercurius, {
       schema: buildSchemaSync({
@@ -51,14 +60,10 @@ const start = async () => {
           RoomResolver,
           MemberResolver
         ],
-        pubSub: new RedisPubSub({
-          connection: {
-            host: process.env.REDIS_HOST
-          }
-        }),
+        pubSub,
       }),
       context: (req, reply): UserContext => {
-        const user_id = pullUserFromRequest(req, reply);
+        const user_id = pullUserFromRequest(req.headers);
 
         if (user_id == null)
           throw new Error("Unauthorized");
@@ -69,7 +74,24 @@ const start = async () => {
         }
       },
       graphiql: "playground",
-      subscription: true,
+      subscription: {
+        onDisconnect: async (ctx) => {
+          if (ctx['user_id']) {
+            const room = await getUserRoom(ctx['user_id']);
+            if (room) {
+              leaveRoom(room, ctx['user_id']);
+            }
+          }
+        },
+        onConnect: (data) => {
+          const user_id = pullUserFromRequest(data.payload);
+          if (user_id == null)
+            return {};
+          return {
+            user_id
+          };
+        },
+      },
       playgroundHeaders(window: any) {
         return {
           authorization: `Bearer `,
@@ -77,6 +99,10 @@ const start = async () => {
       },
     });
 
+    setTimeout(() => {
+      repair();
+      setInterval(repair, 100000);
+    }, 1000);
 
     await fastify.listen(process.env.PORT || 3000, "0.0.0.0");
   } catch (err) {

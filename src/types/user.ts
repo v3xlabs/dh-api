@@ -1,7 +1,7 @@
-import { fips } from "crypto";
 import { Field, Int, ObjectType } from "type-graphql";
 import { BaseEntity, BeforeInsert, Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Follow } from "./follow";
+import { Member } from "./member";
 import { Room } from "./room";
 import { SocialID } from "./social";
 
@@ -56,8 +56,8 @@ export class User extends PartialUser {
      * Current Room
      * Random
      */
-    @Field(type => Room, { nullable: true })
-    current_room: Room;
+    @Field(type => Member, { nullable: true })
+    current_room: Member;
 
     @Field(type => Int)
     follower_count: number;

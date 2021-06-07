@@ -1,28 +1,36 @@
-import { Field, ID, ObjectType } from "type-graphql";
-import { BaseEntity, Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
+import { Field, Int, ObjectType, registerEnumType } from "type-graphql";
+import { CQLMemberType } from "./CQLRoom";
 import { Room } from "./room";
 import { User } from "./user";
 
-type MemberType = 'VISITOR' | 'SPEAKER' | 'ADMIN';
+registerEnumType(CQLMemberType, {
+    name: "Role",
+    description: "Role of the user in a specific room"
+});
 
 @ObjectType()
 export class Member {
 
     /**
-     * Membertype
-     */
-    @Field()
-    id: MemberType;
-
-    /**
      * Room
      */
     @Field(type => Room)
-    room: Room;
+    room?: Room;
+    @Field(type => String)
+    room_id: string;
 
     /**
      * User
      */
     @Field(type => User)
-    user: User;
+    user?: User;
+    @Field(type => String)
+    user_id: string;
+
+    /**
+     * Role
+     */
+    @Field(type => Int)
+    role: CQLMemberType;
+
 }
