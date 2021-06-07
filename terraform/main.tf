@@ -93,6 +93,24 @@ resource "kubernetes_deployment" "api" {
                         }
                     }
                     env {
+                        name = "SCYLLA_HOST"
+                        value_from {
+                            config_map_key_ref {
+                                name = "config"
+                                key = "SCYLLA_HOST"
+                            }
+                        }
+                    }
+                    env {
+                        name = "DOGE_EPOCH"
+                        value_from {
+                            config_map_key_ref {
+                                name = "config"
+                                key = "DOGE_EPOCH"
+                            }
+                        }
+                    }
+                    env {
                         name = "FASTIFY_PRODUCTION"
                         value = "true"
                     }

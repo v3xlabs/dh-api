@@ -13,7 +13,7 @@ const generateID = (): number => new Date().getTime() - parseInt(process.env.DOG
  */
 export const setupCassandra = () => {
     connection = new Client({
-        contactPoints: ['127.0.0.1:9042'],
+        contactPoints: [process.env.SCYLLA_HOST + ':9042'],
         localDataCenter: 'datacenter1',
         keyspace: 'dogehouse_rooms',
         queryOptions: {
