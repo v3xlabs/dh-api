@@ -1,9 +1,11 @@
 import { Arg, Args, ArgsType, Ctx, Field, FieldResolver, Info, Int, Mutation, Publisher, PubSub, Query, Resolver, Root, Subscription } from "type-graphql";
+import { getManager } from "typeorm";
 import { Assert, AssertNot } from "../graphql-utils/assert";
 import { UserContext } from '../graphql-utils/pullUserFromRequest';
 import { createRoom, getRoom, getRooms, getUserRoom, getRoomMembers, joinRoom, leaveRoom } from "../service/cql";
 import { Member } from "../types/member";
 import { Room, RoomChangePayload, RoomID } from "../types/room";
+import { User } from "../types/user";
 
 @ArgsType()
 class CreateRoomArgs {
@@ -85,16 +87,20 @@ export class RoomResolver {
         // Join specified room
         await joinRoom(room_id, ctx.user_id);
 
+        const user = await getManager().findOne(User, {where: {id: ctx.user_id}});
+
         // Publish event to room
         await publishRooms({
             event: 'USER_JOIN',
             room_id: room_id,
-            user_id: ctx.user_id.toString()
+            user_id: ctx.user_id.toString(),
+            user: user
         });
         await publishUsers({
             event: 'USER_JOIN',
             room_id: room_id,
-            user_id: ctx.user_id.toString()
+            user_id: ctx.user_id.toString(),
+            user: user
         });
 
         return true;
