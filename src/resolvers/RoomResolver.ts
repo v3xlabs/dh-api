@@ -21,7 +21,7 @@ export class RoomResolver {
      */
     @Query(returns => [Room])
     async rooms(@Ctx() ctx: UserContext): Promise<Room[]> {
-        return await getRooms("*");
+        return await getRooms();
     }
 
     /**
@@ -29,7 +29,7 @@ export class RoomResolver {
      */
     @Query(returns => Room)
     async room(@Ctx() ctx: UserContext, @Arg('room_id') room_id: string): Promise<Room> {
-        return await getRoom("*", room_id);
+        return await getRoom(room_id);
     }
 
     @Subscription(() => RoomChangePayload, {
@@ -78,7 +78,7 @@ export class RoomResolver {
         Assert`${userCurrentRoom} User Already In Room`;
 
         // Check if the room specified exists
-        const room = await getRoom('*', room_id);
+        const room = await getRoom(room_id);
         AssertNot`${room} Room ${room_id} does not exist`;
 
         // Join specified room
