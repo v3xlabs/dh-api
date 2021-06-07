@@ -1,9 +1,11 @@
 import { Args, ArgsType, Ctx, Field, FieldResolver, Int, Mutation, Query, Resolver, Root } from "type-graphql";
 import { User } from "../types/user";
 import { UserContext } from '../graphql-utils/pullUserFromRequest';
-import { Room } from "../types/room";
 import { getManager, getRepository } from "typeorm";
 import { Follow } from "../types/follow";
+import { getRoomMember, getUserRoom } from "../service/cql";
+import { Member } from "../types/member";
+import { AssertNot } from "../graphql-utils/assert";
 
 @ArgsType()
 class FollowUserArgs {
@@ -23,24 +25,34 @@ export class UserResolver {
     @Query(returns => User)
     async me(@Ctx() ctx: UserContext) {
         const userRepository = getRepository(User);
-        return userRepository.findOne({where: {id: ctx.user_id}, relations: ["following", "followers"]});
+        return userRepository.findOne({ where: { id: ctx.user_id }, relations: ["following", "followers"] });
     }
 
     @Query(returns => User)
-    async user(@Args() {user_id}: GetUserArgs) {
+    async user(@Args() { user_id }: GetUserArgs) {
         const userRepository = getRepository(User);
-        return userRepository.findOne({where: {id: user_id}, relations: ["following", "followers"]});
+        return userRepository.findOne({ where: { id: user_id }, relations: ["following", "followers"] });
     }
 
     @FieldResolver()
-    current_room(@Root() user: User): Room {
-        console.log('Fetching room for ' + user.id);
+    async current_room(@Root() user: User): Promise<Member> {
 
-        return Room.create({
-            id: 1,
-            description: '',
-            name: 'RoomNAMEEE',
-        });
+        const f = await getUserRoom(user.id.toString());
+
+        if (!f) {
+            return null;
+        }
+
+        const member = await getRoomMember(f, user.id.toString());
+
+        // TODO: AssertFatal
+        AssertNot`${member} You are not a member of this room`;
+
+        return {
+            role: member.role,
+            room_id: member.room.toString(),
+            user_id: member.user.toString()
+        };
     }
 
     @FieldResolver()
@@ -48,7 +60,7 @@ export class UserResolver {
         if (user['followers'] != null)
             return user['followers'].length;
         const m = getManager();
-        return await m.count(Follow, {where: {following: user}});
+        return await m.count(Follow, { where: { following: user } });
     }
 
     @FieldResolver()
@@ -56,20 +68,20 @@ export class UserResolver {
         if (user['following'] != null)
             return user['following'].length;
         const m = getManager();
-        return await m.count(Follow, {where: {follower: user}});
+        return await m.count(Follow, { where: { follower: user } });
     }
 
     @FieldResolver()
     async following(@Root() user: User): Promise<Follow[]> {
         const m = getManager();
-        const f = await m.find(Follow, {where: {follower: user}, relations: ['follower', 'following']});
+        const f = await m.find(Follow, { where: { follower: user }, relations: ['follower', 'following'] });
         return f;
     }
-    
+
     @FieldResolver()
     async followers(@Root() user: User): Promise<Follow[]> {
         const m = getManager();
-        const f = await m.find(Follow, {where: {following: user}, relations: ['follower', 'following']});
+        const f = await m.find(Follow, { where: { following: user }, relations: ['follower', 'following'] });
         return f;
     }
 
@@ -77,19 +89,17 @@ export class UserResolver {
     async am_following(@Root() user: User, @Ctx() ctx: UserContext) {
         console.log(ctx.user_id);
         console.log(user);
-        const a =  await getRepository(Follow).find({where: {follower: await User.find({where: {id: ctx.user_id}}), following: user}});
+        const a = await getRepository(Follow).find({ where: { follower: await User.find({ where: { id: ctx.user_id } }), following: user } });
         console.log(a);
         return false;
     }
 
     @Mutation(type => Boolean)
-    async follow(@Ctx() ctx: UserContext, @Args() {user_id}: FollowUserArgs) {
+    async follow(@Ctx() ctx: UserContext, @Args() { user_id }: FollowUserArgs) {
         const m = getManager();
 
-        const user = await m.findOne(User, {where: {id: ctx.user_id}});
-        const otherUser = await m.findOne(User, {where: {id: user_id}});
-
-        console.log(user, otherUser);
+        const user = await m.findOne(User, { where: { id: ctx.user_id } });
+        const otherUser = await m.findOne(User, { where: { id: user_id } });
 
         const f = m.create(Follow, {});
         f.follower = user;

@@ -1,32 +1,27 @@
 import { ArgsType, Field, ID, Int, ObjectType } from "type-graphql";
-import { BaseEntity, BeforeInsert, Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
 import { Member } from "./member";
 import { User } from "./user";
 
 @ObjectType()
-@Entity()
-export class Room extends BaseEntity {
+export class Room {
 
     /**
      * Identifier
      * This is the unique room identifier
      */
-    @Field(type => Int)
-    @PrimaryGeneratedColumn('increment')
-    id: number;
+    @Field(type => String)
+    id: string;
 
     /**
      * Room Name
      */
     @Field()
-    @Column({ type: 'varchar', length: 30 })
     name: string;
 
     /**
      * Room Description
      */
     @Field(() => String, {nullable: true})
-    @Column({ type: 'varchar', length: 100, nullable: true })
     description: string;
 
     /**
@@ -35,23 +30,6 @@ export class Room extends BaseEntity {
      */
     @Field(type => [Member])
     members: Member[];
-
-    @Column({
-        type: "timestamp",
-        default: () => "NOW()"
-    })
-    created_on: Date;
-
-    @Column({
-        type: "timestamp",
-        default: () => "NOW()"
-    })
-    modified_on: Date;
-
-    @BeforeInsert()
-    updateDateCreation() {
-        this.modified_on = new Date();
-    }
 }
 
 @ObjectType()
@@ -60,11 +38,11 @@ export class RoomChangePayload {
     @Field()
     event: 'CREATE' | 'UPDATE' | 'DELETE' | 'USER_JOIN' | 'USER_PART';
 
-    @Field(type => Room)
-    room: Room;
+    @Field(type => String)
+    room: string;
 
-    @Field(type => User, { nullable: true })
-    user?: User;
+    @Field(type => String, { nullable: true })
+    user?: string;
 
 };
 
