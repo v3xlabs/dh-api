@@ -104,14 +104,23 @@ export class RoomResolver {
     @Mutation(() => Boolean)
     async leaveRoom(@Ctx() ctx: UserContext, @PubSub("ROOM_CHANGE") publishRooms: Publisher<RoomChangePayload>, @PubSub("ROOM_USERS") publishUsers: Publisher<RoomChangePayload>) {
 
-        const room = await getUserRoom(ctx.user_id.toString());
-        if (!room) {
+        const room_id = await getUserRoom(ctx.user_id.toString());
+        if (!room_id) {
             console.log('User not in a room');
             return true;
         }
         console.log('Removing user from room');
 
-        await leaveRoom(room, ctx.user_id);
+        await leaveRoom(room_id, ctx.user_id);
+
+        const room = await getRoom(room_id);
+
+        publishRooms({
+            event: 'UPDATE',
+            room,
+            room_id
+        })
+
         return true;
     }
 
