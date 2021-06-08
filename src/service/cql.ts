@@ -3,7 +3,7 @@ import { CQLMember, CQLMemberType } from '../types/CQLRoom';
 import { Room, RoomChangePayload } from '../types/room';
 import { red } from 'chalk';
 import { CQLQueries } from '../types/CQLQueries';
-import { getPubSub } from './pubsub';
+import { getPubSub, sendRoomUpdate } from './pubsub';
 
 let connection: Client;
 
@@ -126,7 +126,7 @@ export const getRoomMembers = async (room_id: string): Promise<CQLMember[]> => {
 /**
  * Get the Member In the Room of the User
  */
- export const getRoomMember = async (room_id: string, user_id: string): Promise<CQLMember> => {
+export const getRoomMember = async (room_id: string, user_id: string): Promise<CQLMember> => {
     const f = await connection.execute(CQLQueries.selectMembersWhereRoomAndUser, [room_id, user_id]);
 
     return f.rows.map(row => {
@@ -157,13 +157,15 @@ export const repair = async () => {
 export const repairRoom = async (room_id: string) => {
     const r = await connection.execute(CQLQueries.hasUserInRoom, [room_id]);
     if (r.rowLength == 0) {
-        console.log('Found empty room ' + room_id + ' DELETING...'); // TODO: Rename to better message
-        const room = await getRoom(room_id);
-        await connection.execute(CQLQueries.deleteRoom, [room_id]);
-        getPubSub().publish('ROOM_CHANGE', {
-            event: 'DELETE',
-            room: room,
-            room_id: room_id
-        } as RoomChangePayload);
+        console.log('Found empty room ' + room_id + ' scheduled deletion in 5 seconds'); // TODO: Rename to better message
+        setTimeout(async () => {
+            const r = await connection.execute(CQLQueries.hasUserInRoom, [room_id]);
+            if (r.rowLength == 0) {
+                console.log('Permanently deleting ' + room_id);
+                const room = await getRoom(room_id);
+                await connection.execute(CQLQueries.deleteRoom, [room_id]);
+                await sendRoomUpdate(room_id, room);
+            }
+        }, 5000);
     }
 }

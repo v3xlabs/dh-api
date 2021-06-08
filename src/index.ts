@@ -15,7 +15,7 @@ import { RedisPubSub } from 'graphql-redis-subscriptions';
 import { getRoom, getRoomMember, getUserRoom, leaveRoom, repair, setupCassandra } from "./service/cql";
 import chalk from "chalk";
 import { verify } from "jsonwebtoken";
-import { getPubSub, setupPubSub } from "./service/pubsub";
+import { getPubSub, sendRoomUpdate, setupPubSub } from "./service/pubsub";
 import { RoomChangePayload } from "./types/room";
 import { useAuth } from "./graphql-utils/auth";
 
@@ -83,12 +83,7 @@ const start = async () => {
             const room_id = await getUserRoom(ctx['user_id']);
             if (room_id) {
               await leaveRoom(room_id, ctx['user_id']);
-              const room = await getRoom(room_id);
-              getPubSub().publish("ROOM_CHANGE", {
-                room_id: room_id,
-                room: room,
-                event: 'UPDATE',
-              } as RoomChangePayload);
+              await sendRoomUpdate(room_id);
             }
           }
         },
