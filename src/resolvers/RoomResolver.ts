@@ -79,6 +79,10 @@ export class RoomResolver {
         // Check if you are already in a room
         const userCurrentRoom = await getUserRoom(ctx.user_id.toString());
 
+        if (userCurrentRoom != room_id) {
+            return true;
+        }
+
         if (userCurrentRoom) {
             await leaveRoom(userCurrentRoom, ctx.user_id);
             let room = await getRoom(userCurrentRoom);
