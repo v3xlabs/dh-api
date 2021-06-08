@@ -16,7 +16,7 @@ export const setupPubSub = () => {
 
 export const getPubSub = () => pubSub;
 
-export const sendRoomUpdate = async (room_id: string, room: Room) => {
+export const sendRoomUpdate = async (room_id: string, room?: Room) => {
     if (!room) {
         room = await getRoom(room_id);
     }
