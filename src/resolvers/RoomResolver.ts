@@ -78,7 +78,17 @@ export class RoomResolver {
 
         // Check if you are already in a room
         const userCurrentRoom = await getUserRoom(ctx.user_id.toString());
-        Assert`${userCurrentRoom} User Already In Room`;
+
+        if (userCurrentRoom) {
+            await leaveRoom(userCurrentRoom, ctx.user_id);
+            let room = await getRoom(userCurrentRoom);
+            AssertNot`${room} Room ${userCurrentRoom} does not exist`;
+            await publishRooms({
+                event: 'UPDATE',
+                room_id: userCurrentRoom,
+                room: room
+            });
+        }
 
         // Check if the room specified exists
         let room = await getRoom(room_id);
