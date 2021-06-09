@@ -21,6 +21,7 @@ export const sendRoomUpdate = async (room_id: string, room?: Room) => {
         room = await getRoom(room_id);
     }
     return await getPubSub().publish("ROOM_CHANGE", {
+        event: 'UPDATE',
         room_id: room_id,
         room: room
     } as RoomChangePayload);
