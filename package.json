@@ -17,7 +17,7 @@
     "chalk": "^4.1.1",
     "class-validator": "^0.13.1",
     "dotenv": "^10.0.0",
-    "fastify": "^3.16.2",
+    "fastify": "^3.29.4",
     "fastify-cors": "^6.0.1",
     "form-data": "^4.0.0",
     "graphql": "^15.5.0",
