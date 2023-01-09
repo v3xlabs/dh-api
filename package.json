@@ -27,7 +27,7 @@
     "graphql-shield": "^7.5.0",
     "graphql-type-long": "^0.1.1",
     "jsonwebtoken": "^8.5.1",
-    "mercurius": "^7.6.1",
+    "mercurius": "^11.5.0",
     "node-fetch": "^2.6.1",
     "pg": "^8.6.0",
     "redis": "^3.1.2",
